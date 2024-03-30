@@ -30,53 +30,46 @@ end
 local function ElevatorMenu(id)
     QBCore.Functions.TriggerCallback("mh-carlift:server:hasJob", function(hasJob)
         if hasJob then
-            local menu = {{
-                header = Lang:t('menu.menu_title') .. " ID:" .. id,
-                icon = Config.Fontawesome.open_menu,
-                isMenuHeader = true
-            }}
-            if attachedVehicle then
-                menu[#menu + 1] = {
-                    header = "Dettach Vehicle",
-                    icon = Config.Fontawesome.item_menu,
-                    params = {
-                        event = 'mh-carlift:client:disconnect',
-                        args = {}
+            lib.registerContext({
+                id = 'carlifts',
+                title = 'Car Lift',
+                options = {
+                  {
+                    title = 'Dettach Vehicle',
+                    description = 'Removes vehicle from lift',
+                    icon = {'fas', 'arrows-up-to-line'},
+                    event = 'mh-carlift:client:disconnect',
+                  },
+                  {
+                    title = Lang:t('menu.elevator_up'),
+                    description = 'Send lift up',
+                    icon = {'fas', 'arrow-up'},
+                    event = 'mh-carlift:client:use',
+                    args = {
+                        handle = "up", id = id
                     }
-                }
-            end
-            if attachedVehicle then
-                menu[#menu + 1] = {
-                    header = Lang:t('menu.elevator_up'),
-                    icon = Config.Fontawesome.item_menu,
-                    params = {
-                        event = 'mh-carlift:client:use',
-                        args = {handle = "up", id = id}
+                  },
+                  {
+                    title = Lang:t('menu.elevator_down'),
+                    description = 'Bring lift down',
+                    icon = {'fas', 'arrow-down'},
+                    event = 'mh-carlift:client:use',
+                    args = {
+                        handle = "down", id = id
                     }
-                }
-                menu[#menu + 1] = {
-                    header = Lang:t('menu.elevator_stop'),
-                    icon = Config.Fontawesome.item_menu,
-                    params = {
-                        event = 'mh-carlift:client:use',
-                        args = {handle = "stop", id = id}
+                  },
+                  {
+                    title = Lang:t('menu.elevator_stop'),
+                    description = 'Stop lift',
+                    icon = {'fas', 'hand'},
+                    event = 'mh-carlift:client:use',
+                    args = {
+                        handle = "stop", id = id
                     }
+                  },
                 }
-                menu[#menu + 1] = {
-                    header = Lang:t('menu.elevator_down'),
-                    icon = Config.Fontawesome.item_menu,
-                    params = {
-                        event = 'mh-carlift:client:use',
-                        args = {handle = "down", id = id}
-                    }
-                }
-            end
-            menu[#menu + 1] = {
-                header = Lang:t('menu.menu_close'),
-                icon = Config.Fontawesome.close_menu,
-                params = {event = ''}
-            }
-            exports['qb-menu']:openMenu(menu)
+              })
+              lib.showContext('carlifts')
         else
             QBCore.Functions.Notify(Lang:t('notify.no_access'), "error", 3000)
         end
@@ -187,16 +180,16 @@ local function CreateBoxZone(id, x, y, z)
             if not Config.UseTarget then
                 if Config.Elevators[id].openMenu then
                     if not IsPedInAnyVehicle(PlayerPedId()) then
-                        exports['qb-core']:DrawText(Lang:t('menu.press_to_open', {id = id, key = Config.MenuButtonDisplay}), 'left')
+                        lib.showTextUI('[E] - Lift Menu')
                     elseif IsPedInAnyVehicle(PlayerPedId()) then
-                        exports['qb-core']:DrawText("Press [" .. Config.MenuButtonDisplay .. "] to attach vehicle",'left')
+                        lib.showTextUI('[E] - Attach Car')
                     end
                 end
             end
         else
             isInElevatorZone = false
             TriggerEvent('mh-carlift:client:use', {handle = "stop", id = id})
-            exports['qb-core']:HideText()
+            lib.hideTextUI()
         end
     end)
 end
